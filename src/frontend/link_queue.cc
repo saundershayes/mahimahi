@@ -18,7 +18,9 @@ LinkQueue::LinkQueue( const string & link_name, const string & filename, const s
       log_(),
       throughput_graph_( nullptr ),
       delay_graph_( nullptr ),
-      repeat_( repeat )
+      repeat_( repeat ),
+      packet_in_transit_(),
+      last_timestamp_emulated_( base_timestamp_ - 1 )
 {
     assert_not_root();
 
@@ -176,11 +178,28 @@ void LinkQueue::use_a_delivery_opportunity( void )
     }
 }
 
+bool LinkQueue::packet_ready_to_be_sent( const uint64_t delivery_time )
+{
+    return packet_in_transit_ or ((not packet_queue_.empty()) and (packet_queue_.front().arrival_time <= delivery_time));
+}
+
+void LinkQueue::commit_to_start_sending_packet( void )
+{
+    if ( packet_in_transit_ ) {
+        assert( packet_in_transit_->bytes_to_transmit > 0 );
+        return;
+    }
+
+    /* otherwise, dequeue a packet from the queue discipline (XXX will need to be factored out to method in QueueDiscipline) */
+    packet_in_transit_.reset( new QueuedPacket( move( packet_queue_.front() ) ) );
+    packet_queue_.pop();
+}
+
 void LinkQueue::write_packets( FileDescriptor & fd )
 {
-    uint64_t now = timestamp();
+    last_timestamp_emulated_ = timestamp();
 
-    while ( next_delivery_time() <= now ) {
+    while ( next_delivery_time() <= last_timestamp_emulated_ ) {
         const uint64_t this_delivery_time = next_delivery_time();
 
         /* burn a delivery opportunity */
@@ -188,20 +207,21 @@ void LinkQueue::write_packets( FileDescriptor & fd )
         use_a_delivery_opportunity();
 
         while ( (bytes_left_in_this_delivery > 0)
-                and (not packet_queue_.empty())
-                and (packet_queue_.front().arrival_time <= this_delivery_time) ) {
-            packet_queue_.front().bytes_to_transmit -= bytes_left_in_this_delivery;
+                and packet_ready_to_be_sent( this_delivery_time ) ) {
+            commit_to_start_sending_packet();
+            assert( packet_in_transit_ );
+            packet_in_transit_->bytes_to_transmit -= bytes_left_in_this_delivery;
             bytes_left_in_this_delivery = 0;
 
-            if ( packet_queue_.front().bytes_to_transmit <= 0 ) {
+            if ( packet_in_transit_->bytes_to_transmit <= 0 ) {
                 /* restore the surplus bytes beyond what the packet requires */
-                bytes_left_in_this_delivery += (- packet_queue_.front().bytes_to_transmit);
+                bytes_left_in_this_delivery += (- packet_in_transit_->bytes_to_transmit);
 
-                record_departure( this_delivery_time, packet_queue_.front() );
+                record_departure( this_delivery_time, *packet_in_transit_ );
 
                 /* this packet is ready to go */
-                fd.write( packet_queue_.front().contents );
-                packet_queue_.pop();
+                fd.write( packet_in_transit_->contents );
+                packet_in_transit_.reset();
             }
         }
     }
@@ -209,10 +229,8 @@ void LinkQueue::write_packets( FileDescriptor & fd )
 
 void LinkQueue::discard_wasted_opportunities( const uint64_t now )
 {
-    const uint64_t discard_before = min( now,
-                                         packet_queue_.empty()
-                                         ? now
-                                         : packet_queue_.front().arrival_time - 1 );
+    const uint64_t discard_before = (packet_ready_to_be_sent( now ) ? last_timestamp_emulated_ : now) - 1;
+    /* don't discard the opportunity until the millisecond where it could have been used has been definitively passed */
 
     while ( next_delivery_time() <= discard_before ) {
         use_a_delivery_opportunity();
@@ -233,7 +251,5 @@ bool LinkQueue::pending_output( void )
 {
     const auto now = timestamp();
 
-    return (not packet_queue_.empty())
-        and (packet_queue_.front().arrival_time <= next_delivery_time())
-        and (next_delivery_time() <= now);
+    return packet_ready_to_be_sent( next_delivery_time() ) and ( next_delivery_time() <= now );
 }

@@ -48,6 +48,12 @@ private:
     void record_departure_opportunity( void );
     void record_departure( const uint64_t departure_time, const QueuedPacket & packet );
 
+    /* partial conversion to avoid touching packet_queue_ directly in LinkQueue methods */
+    std::unique_ptr<QueuedPacket> packet_in_transit_;
+    bool packet_ready_to_be_sent( const uint64_t delivery_time );
+    void commit_to_start_sending_packet( void );
+    uint64_t last_timestamp_emulated_;
+
 public:
     LinkQueue( const std::string & link_name, const std::string & filename, const std::string & logfile, const bool repeat, const bool graph_throughput, const bool graph_delay );
 
