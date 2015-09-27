@@ -36,10 +36,15 @@ mm_webreplay_SOURCES = replayshell.cc web_server.hh web_server.cc common_replay_
 mm_webreplay_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
 mm_webreplay_LDFLAGS = -pthread
 
-bin_PROGRAMS += nph-replayserver.cgi
-nph_replayserver_cgi_SOURCES = replayserver.cc
-nph_replayserver_cgi_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
-nph_replayserver_cgi_LDFLAGS = -pthread
+bin_PROGRAMS += mm-replayserver
+mm_replayserver_SOURCES = replayserver.cc
+mm_replayserver_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+mm_replayserver_LDFLAGS = -pthread
+
+lib_LTLIBRARIES = libmod_deepcgi.la
+libmod_deepcgi_la_SOURCES = mod_deepcgi.c replayserver_filename.cc
+libmod_deepcgi_la_CFLAGS = -I@APACHE2_INCLUDE@ -I@APR_INCLUDE@
+libmod_deepcgi_la_CPPFLAGS = # empty
 
 bin_PROGRAMS += mm-youtubereplay
 mm_youtubereplay_SOURCES = youtubeshell.cc web_server.hh web_server.cc common_replay_shell.hh common_replay_shell.cc

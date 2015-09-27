@@ -1,5 +1,8 @@
 *.a
 *.o
+*.lo
+*.la
+*.slo
 .deps
 Makefile
 Makefile.in
@@ -13,12 +16,17 @@ Makefile.in
 /config.h.in~
 /config.log
 /config.status
+/config.guess
+/config.sub
 /configure
 /depcomp
 /install-sh
 /missing
 /mahimahi-*.tar.gz
 /stamp-h1
+/libtool
+/ltmain.sh
+/m4/
 
 compile
 src/protobufs/http_record.pb.cc
@@ -31,8 +39,9 @@ src/frontend/mm-meter
 src/frontend/mm-webrecord
 src/frontend/mm-webreplay
 src/frontend/mm-youtubereplay
-src/frontend/nph-replayserver.cgi
 src/frontend/nph-youtubeserver.cgi
+src/frontend/mm-replayserver
+src/frontend/.libs
 
 media_files/*
 saved_requests/*
