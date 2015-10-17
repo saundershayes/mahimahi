@@ -41,20 +41,20 @@ mm_replayserver_SOURCES = replayserver.cc
 mm_replayserver_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
 mm_replayserver_LDFLAGS = -pthread
 
-lib_LTLIBRARIES = libmod_deepcgi.la
-libmod_deepcgi_la_SOURCES = mod_deepcgi.c replayserver_filename.cc
-libmod_deepcgi_la_CFLAGS = -I@APACHE2_INCLUDE@ -I@APR_INCLUDE@
-libmod_deepcgi_la_CPPFLAGS = # empty
-
 bin_PROGRAMS += mm-youtubereplay
 mm_youtubereplay_SOURCES = youtubeshell.cc web_server.hh web_server.cc common_replay_shell.hh common_replay_shell.cc
 mm_youtubereplay_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
 mm_youtubereplay_LDFLAGS = -pthread
 
-bin_PROGRAMS += nph-youtubeserver.cgi
-nph_youtubeserver_cgi_SOURCES = youtubeserver.cc
-nph_youtubeserver_cgi_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
-nph_youtubeserver_cgi_LDFLAGS = -pthread
+bin_PROGRAMS += mm-youtubeserver
+mm_youtubeserver_SOURCES = youtubeserver.cc
+mm_youtubeserver_LDADD = -lrt ../util/libutil.a ../http/libhttp.a ../protobufs/libhttprecordprotos.a $(protobuf_LIBS)
+mm_youtubeserver_LDFLAGS = -pthread
+
+lib_LTLIBRARIES = libmod_deepcgi.la
+libmod_deepcgi_la_SOURCES = mod_deepcgi.c
+libmod_deepcgi_la_CFLAGS = -I@APACHE2_INCLUDE@ -I@APR_INCLUDE@
+libmod_deepcgi_la_CPPFLAGS = # empty
 
 install-exec-hook:
 	chown root $(DESTDIR)$(bindir)/mm-delay

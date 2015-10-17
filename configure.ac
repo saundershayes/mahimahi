@@ -105,8 +105,8 @@ AC_DEFINE_UNQUOTED([REPLAYSERVER], ["${prefix}/bin/mm-replayserver"], [path to m
 
 AC_DEFINE_UNQUOTED([MOD_DEEPCGI], ["${prefix}/lib/libmod_deepcgi.so"], [path to apache2 mod_deepcgi])
 
-# Set path to youtubeserver cgi script
-AC_DEFINE_UNQUOTED([YOUTUBESERVER], ["${prefix}/bin/nph-youtubeserver.cgi"], [path to nph-youtubeserver.cgi])
+# Set path to mm-youtubeserver script
+AC_DEFINE_UNQUOTED([YOUTUBESERVER], ["${prefix}/bin/mm-youtubeserver"], [path to mm-youtubeserver])
 
 # Set path to directory with installed executable programs
 AC_DEFINE_UNQUOTED([EXEC_DIR], ["${prefix}/bin/"], [path to directory with installed executable programs])
