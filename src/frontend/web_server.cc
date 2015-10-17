@@ -17,13 +17,12 @@ WebServer::WebServer( const Address & addr, const string & working_directory, co
     : config_file_( "/tmp/replayshell_apache_config" ),
       moved_away_( false )
 {
-    if(isYoutubeServer) {
-        switch_to_youtube_server(); 
-    }
     config_file_.write( apache_main_config );
 
-    config_file_.write( "SetEnv MAHIMAHI_CHDIR " + working_directory + "\n" );
-    config_file_.write( "SetEnv MAHIMAHI_RECORD_PATH " + record_path + "\n" );
+    config_file_.write( "WorkingDir " + working_directory + "\n" );
+    config_file_.write( "RecordingDir " + record_path + "\n" );
+    string binary_name = isYoutubeServer ? YOUTUBESERVER : REPLAYSERVER;
+    config_file_.write( "BinaryName " + binary_name + "\n" );
 
     /* if port 443, add ssl components */
     if ( addr.port() == 443 ) { /* ssl */
