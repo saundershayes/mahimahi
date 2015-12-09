@@ -80,7 +80,7 @@ public:
        in ASCII without sensitivity to locale */
     static bool equivalent_strings( const std::string & a, const std::string & b );
 
-    const std::string & get_first_line( void ) const; 
+    const std::string & get_first_line( void ) const;
 
     /* construct from protobuf */
     HTTPMessage( const MahimahiProtobufs::HTTPMessage & proto );

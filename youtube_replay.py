@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 # This script checks for mm-webrecord saved request/response pairs and
-# also checks for media files in the directory for the youtube link. 
+# also checks for media files in the directory for the youtube link.
 
 # The media files must be stored in a media_files directory and
-# the mm-webrecord files must be stored in a saved_requests directory. 
-# Note that these two directories are automatically created by 
-# youtube_config.py. 
+# the mm-webrecord files must be stored in a saved_requests directory.
+# Note that these two directories are automatically created by
+# youtube_config.py.
 
 # USAGE: python youtube_replay.py --url='<insert YouTube embed url here>' --mahimahi-options='<insert optional mahimahi options here>'
 
@@ -80,7 +80,7 @@ def main():
 	if video_id == "":
 		match_object = re.search("/embed/([_a-zA-Z0-9\-]+)", url)
 		if not match_object:
-  			print "ERROR: " + url + " is not a valid embed YouTube url. We cannot parse the video id from the url if it is not valid." 
+  			print "ERROR: " + url + " is not a valid embed YouTube url. We cannot parse the video id from the url if it is not valid."
   			print "ERROR: Without a video id we cannot configure your video. Either use a correctly formatted YouTube embed url or provide a video id for your custom url."
   			print "You can provide a video id with the option --video-id='<insert video id here>' or a url using --url='<insert url here>'."
   			sys.exit(1)
@@ -89,11 +89,16 @@ def main():
 	print "Detected YouTube url with video id " + video_id
 	print
 	print "Running mm-youtubereplay on video id " + video_id + "......"
-	print 
-	os.system("rm ./youtube_logs/" + video_id + ".txt")
+	print
+	youtube_logs_path = "./youtube_logs/" + video_id + ".txt"
+	render_logs_path = "./youtube_stall_logs/" + video_id + ".txt"
+	if os.path.exists(render_logs_path):
+		os.system("rm " + render_logs_path)
+	if os.path.exists(youtube_logs_path):
+		os.system("rm " + youtube_logs_path)
 	media_files_path =  os.path.dirname(os.path.realpath(__file__)) + "/media_files/" + video_id
 	saved_requests_path = os.path.dirname(os.path.realpath(__file__)) + "/saved_requests/" + video_id
-	if not os.path.exists(saved_requests_path): 
+	if not os.path.exists(saved_requests_path):
 		print "ERROR: It appears there is no saved session data for the youtube video corresponding to video id " + video_id
 		print "ERROR: Recorded session data could not be found where it is expected in " + saved_requests_path
 		print "ERROR: Please run python youtube_config.py " + url + " to correct this error "
@@ -105,13 +110,13 @@ def main():
 		print "ERROR: Please run python youtube_config.py " + url + " to correct this error "
 		print
 		sys.exit(1)
-	youtube_replay_command = "mm-youtubereplay " + saved_requests_path + " " + mahimahi_options + " " + browser_command + " --window-size=1920,1080 --ignore-certificate-errors --user-data-dir=/tmp/nonexistent$(date +%s%N) '" + url + "' 2> ./youtube_stall_logs/render_logs.txt"
+	youtube_replay_command = "mm-youtubereplay " + saved_requests_path + " " + mahimahi_options + " " + browser_command + " --window-size=1920,1080 --ignore-certificate-errors --user-data-dir=/tmp/nonexistent$(date +%s%N) '" + url + "' 2> " + render_logs_path
 	print youtube_replay_command
 	print
 	if os.system(youtube_replay_command):
-		print "YouTube replay has failed. Try running sudo sysctl -w net.ipv4.ip_forward=1 if you have not done so already and make sure to check ./youtube_stall_logs/render_logs.txt for errors."
+		print "YouTube replay has failed. Try running sudo sysctl -w net.ipv4.ip_forward=1 if you have not done so already and make sure to check " + render_logs_path + " for errors."
 		sys.exit(1)
-		
+
 
 if __name__ == '__main__':
   main()

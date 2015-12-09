@@ -42,6 +42,7 @@ Makefile.in
 /src/frontend/mm-youtubeserver
 /src/frontend/.libs
 
+manifests/*
 media_files/*
 saved_requests/*
 youtube_logs/*

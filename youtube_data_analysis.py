@@ -4,7 +4,7 @@
 
 from __future__ import print_function
 import pylab
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import os
 import sys
@@ -20,19 +20,19 @@ def get_extended_plot_info(logfile_path):
 	time_first = -1
 	time_last = -1
 	most_bytes_requested = -1
-	with open(logfile_path) as f:	
+	with open(logfile_path) as f:
 		for line in f:
 			resolution = re.search("[0-9]+x([0-9]+)", line)
 			time = re.search("([0-9]+):([0-9]+):([0-9]+)", line)
 			byte_range = re.search("([0-9]+)-([0-9]+)", line)
 			month_day = re.search("([A-Z][a-z]{2}) ([A-Z][a-z]{2})  ?([0-9]+)", line)
 			resolution_list += [resolution.group(1)]
-			time_sec = (int(month_day.group(3)) * 86400 + int(time.group(1)) * 3600 + int(time.group(2)) * 60 + int(time.group(3)))
+			time_sec = (int(month_day.group(3)) * 86400 + int(time.group(1)) * 2720 + int(time.group(2)) * 60 + int(time.group(3)))
 			time_list += [time_sec]
 			if time_first == -1:
 				time_first = time_sec
 			time_last = time_sec
-			num_bytes = int(byte_range.group(2)) - int(byte_range.group(1)) 
+			num_bytes = int(byte_range.group(2)) - int(byte_range.group(1))
 			num_bytes_list += [num_bytes]
 			if(num_bytes > most_bytes_requested):
 				most_bytes_requested = num_bytes
@@ -61,7 +61,7 @@ def plot_resolution(logfile_path, output_filename):
 def get_plot_info(logfile_path):
 	resolution_list = []
 	byte_range_list = []
-	with open(logfile_path) as f:	
+	with open(logfile_path) as f:
 		for line in f:
 			resolution = re.search("[0-9]+x([0-9]+)", line)
 			byte_range = re.search("([0-9]+-[0-9]+)", line)
@@ -77,25 +77,25 @@ def get_filenames_list(directory_path):
 	return filenames_list
 
 def get_resolution_from_filename(index_filename):
-	match_object = re.search("1080", index_filename)
+	match_object = re.search("818", index_filename)
 	if match_object:
-		return "1080"
-	match_object = re.search("720", index_filename)
+		return "818"
+	match_object = re.search("546", index_filename)
 	if match_object:
-		return "720"
-	match_object = re.search("480", index_filename)
+		return "546"
+	match_object = re.search("364", index_filename)
 	if match_object:
-		return "480"
-	match_object = re.search("360", index_filename)
+		return "364"
+	match_object = re.search("272", index_filename)
 	if match_object:
-		return "360"
-	match_object = re.search("240", index_filename)
+		return "272"
+	match_object = re.search("182", index_filename)
 	if match_object:
-		return "240"
-	match_object = re.search("144", index_filename)
+		return "182"
+	match_object = re.search("110", index_filename)
 	if match_object:
-		return "144"
-	return -1 
+		return "110"
+	return -1
 
 def get_time_range(byte_range, offset_list, time_last):
 	split_array = byte_range.split("-")
@@ -123,7 +123,7 @@ def plot_resolution_lines(graph_dict, time_first, time_last, output_filename):
 			plt.plot([time_range[0], time_range[1]], [resolution, resolution], color='Blue', linestyle='-', linewidth=1)
 	plt.xlabel('time in video in seconds')
 	plt.ylabel('resolution')
-	plt.ylim([0, 1440])
+	plt.ylim([0, 1100])
 	plt.xlim([time_first - 100, time_last + 100])
 	plt.savefig(output_filename)
 	os.system('eog ' + output_filename + '&')
@@ -208,7 +208,7 @@ def print_overlap_percentage(graph_dict, duration, output_filename):
 	for time_range in overlap_time_range_list:
 		total_overlap_time += float(time_range[1]) - float(time_range[0])
 	output_file = open(output_filename, 'a')
-	print("Overlap Percentage: " + str((total_overlap_time * 100) / duration), file=output_file) 
+	print("Overlap Percentage: " + str((total_overlap_time * 100) / duration), file=output_file)
 
 
 def find_next_range_end(range_start, range_start_list, range_end):
@@ -237,7 +237,7 @@ def remove_overlap(graph_dict, time_last):
 	overlap_time_range_list = get_overlap_list_from_dictionary(graph_dict)
 	range_list_no_overlap = list()
 	current_range_list_end_time = 0.0
-	resolutions = ['1080', '720', '480', '360', '240', '144']
+	resolutions = ['818', '546', '364', '272', '182', '110']
 	graph_dict_no_overlap = collections.defaultdict(lambda: list())
 	range_start_list = list()
 	for resolution in resolutions:
@@ -414,19 +414,19 @@ def plot_CDF(SSIM_graph_dict, output_filename):
 
 def sc_get_next_resolution(resolution):
 	if resolution == "":
-		return "1080"
-	if resolution == "1080":
-		return "720"
-	if resolution == "720":
-		return "480"
-	if resolution == "480":
-		return "360"
-	if resolution == "360":
-		return "240"
-	if resolution == "240":
-		return "144"
-	if resolution == "144":
-		return "1080"
+		return "818"
+	if resolution == "818":
+		return "546"
+	if resolution == "546":
+		return "364"
+	if resolution == "364":
+		return "272"
+	if resolution == "272":
+		return "182"
+	if resolution == "182":
+		return "110"
+	if resolution == "110":
+		return "818"
 
 def sc_plot_CDF_overlay(SSIM_index, output_filename, cdf_list):
 	CDF_data_points_map = {}
@@ -450,20 +450,20 @@ def sc_plot_CDF_overlay(SSIM_index, output_filename, cdf_list):
 	for a, color in zip(axes, colors):
 		a.plot(SSIM_scores_x_axis_list, CDF_data_points_map[resolution], color=color)
 		a.set_ylim([-.1, 1.1])
-		a.tick_params(axis='y', color=color)	
-		resolution = sc_get_next_resolution(resolution)	
+		a.tick_params(axis='y', color=color)
+		resolution = sc_get_next_resolution(resolution)
 	a.plot(SSIM_scores_x_axis_list, cdf_list, color="Black")
 	a.set_ylim([-.1, 1.1])
-	a.tick_params(axis='y', color="Black")	
+	a.tick_params(axis='y', color="Black")
 	axes[0].set_xlabel('SSIM score')
 	ax.set_xlim([0.6, 1.0])
 	ax.set_ylabel('CDF')
-	blue_patch = mpatches.Patch(color='blue', label='1080')
-	red_patch = mpatches.Patch(color='red', label='720')
-	green_patch = mpatches.Patch(color='green', label='480')
-	orange_patch = mpatches.Patch(color='orange', label='360')
-	purple_patch = mpatches.Patch(color='purple', label='240')
-	cyan_patch = mpatches.Patch(color='cyan', label='144')
+	blue_patch = mpatches.Patch(color='blue', label='818')
+	red_patch = mpatches.Patch(color='red', label='546')
+	green_patch = mpatches.Patch(color='green', label='364')
+	orange_patch = mpatches.Patch(color='orange', label='272')
+	purple_patch = mpatches.Patch(color='purple', label='182')
+	cyan_patch = mpatches.Patch(color='cyan', label='110')
 	black_patch = mpatches.Patch(color='black', label='Verizon')
 	plt.legend(handles=[blue_patch, red_patch, green_patch, orange_patch, purple_patch, cyan_patch, black_patch], loc='upper center', bbox_to_anchor=(0.25, 1.05),
           ncol=3, fancybox=True, shadow=True)
@@ -499,7 +499,7 @@ def configure_file_system(logfile_path):
 	if not os.path.exists(output_filename):
 		os.system("mkdir " + output_filename)
 	return output_filename
-	
+
 def main():
 	logfile_path = sys.argv[1]
 	output_filename = configure_file_system(logfile_path)
@@ -550,9 +550,8 @@ def main():
 	SSIM_index = sc_read_SSIM_index(SSIM_index_directory)
 	sc_plot_CDF_overlay(SSIM_index, output_filename + "CDF_overlay.png", cdf_list)
 
-	
+
 
 
 if __name__ == '__main__':
   main()
-

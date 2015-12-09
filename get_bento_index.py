@@ -35,7 +35,7 @@ def main():
   	match_object = re.search("/embed/([_a-zA-Z0-9\-]+)", youtube_url)
   	video_id = ""
 	if not match_object:
-		print("ERROR: " + youtube_url + " is not a valid embed youtube url") 
+		print("ERROR: " + youtube_url + " is not a valid embed youtube url")
 		sys.exit()
   	else:
   		video_id = match_object.group(1)
@@ -54,7 +54,7 @@ def main():
   		media_filenames_list = get_media_filenames_list(input_media_files_path)
 		for media_filename in media_filenames_list:
 			file_extension = media_filename.split(input_media_files_path, 1)[1]
-			bento_command = "../bento/bin/mp4dump " + media_filename + " > " + output_index_path + file_extension + "_mp4dump"
+			bento_command = "../../bento/bin/mp4dump " + media_filename + " > " + output_index_path + file_extension + "_mp4dump"
 			proc = subprocess.Popen(bento_command, stdout=subprocess.PIPE, shell=True)
 		 	(out, err) = proc.communicate()
 		 	if proc.returncode:
@@ -104,4 +104,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-

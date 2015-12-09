@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-#Usage: python get_SSIM_index.py 'youtube_url'
+#Usage: python get_SSIM_index.py 'youtube_url' video_path
 
 import sys
 import subprocess
@@ -16,10 +16,11 @@ def get_filenames_list(directory_path):
 
 def main():
 	youtube_url = sys.argv[1]
+	video_path = sys.argv[2]
   	match_object = re.search("/embed/([_a-zA-Z0-9\-]+)", youtube_url)
   	video_id = ""
 	if not match_object:
-		print "ERROR: " + youtube_url + " is not a valid embed youtube url" 
+		print "ERROR: " + youtube_url + " is not a valid embed youtube url"
 		sys.exit()
   	else:
   		video_id = match_object.group(1)
@@ -31,11 +32,10 @@ def main():
 		for filename in get_filenames_list("./media_files/" + video_id + "/video/"):
 			filename_extension = re.search("([0-9]+x[0-9]+)", filename).group(1)
 			output_filename = "./SSIM_indexes/" + video_id + "/" + filename_extension
-			process_list += [subprocess.Popen("../SSIM/src/ssim ../charade.mkv " + filename + " > " + output_filename, shell=True)]
+			process_list += [subprocess.Popen("../../SSIM/src/ssim " + video_path + " " + filename + " > " + output_filename, shell=True)]
 		for process in process_list:
 			process.wait()
-		
+
 
 if __name__ == '__main__':
   main()
-

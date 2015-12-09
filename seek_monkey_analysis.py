@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # This script reads the output from seek_stall.py and parses the regular stalls
-# from seek stalls graphing each one separately and together. 
+# from seek stalls graphing each one separately and together.
 
 # USAGE: python seek_monkey_analysis.py youtube_stall_output_logfile
 
@@ -9,7 +9,7 @@ from __future__ import print_function
 import sys
 import re
 import pylab
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import collections
 import os
 
@@ -22,9 +22,15 @@ def get_CDF_value(stall_duration, seek_stalls):
 	CDF = float(i)/len(seek_stalls)
 	return CDF
 
+def is_seek_stall(clock_time_between_stalls, seek_time):
+	for i in range(1,20,1):
+		if(clock_time_between_stalls - (i * 30.0) < 0.4 and clock_time_between_stalls - (i * 30.0) > -0.4):
+			return True
+	return False
+
 def main():
 	stall_logfilename = sys.argv[1]
-	time_first = 1439429653.67
+	time_first = 1449657531.013220
 	with open(stall_logfilename) as stall_logfile:
 		previous_stall_clock_time = time_first
 		seek_stalls = list()
@@ -34,32 +40,23 @@ def main():
 			stall_duration = line_match_object.group(1)
 			stall_clock_time = line_match_object.group(4)
 			clock_time_between_stalls = abs(float(stall_clock_time) - float(previous_stall_clock_time))
-			if clock_time_between_stalls - 30.0 < 1.0 and clock_time_between_stalls - 30.0 > -1.0:
+			if is_seek_stall(clock_time_between_stalls, 30.0):
 				seek_stalls += [(stall_duration, stall_clock_time)]
 				previous_stall_clock_time = stall_clock_time
-			elif clock_time_between_stalls - 60.0 < 1.0 and clock_time_between_stalls - 60.0 > -1.0:
-				#seek_stalls += [("0.0", str(float(previous_stall_clock_time) + 30.0))]
-				seek_stalls += [(stall_duration, stall_clock_time)]
-				previous_stall_clock_time = stall_clock_time
-			# elif clock_time_between_stalls - 90.0 < 1.0 and clock_time_between_stalls - 90.0 > -1.0:
-			# 	seek_stalls += [("0.0", str(float(previous_stall_clock_time) + 30.0))]
-			# 	seek_stalls += [("0.0", str(float(previous_stall_clock_time) + 60.0))]
-			# 	seek_stalls += [(stall_duration, stall_clock_time)]
-			# 	previous_stall_clock_time = stall_clock_time
-			else: 
+			else:
 				regular_stalls += [(stall_duration, stall_clock_time)]
 	# for stall in regular_stalls:
 	# 	print("Stall duration " + stall[0] + " Stall clock time " + stall[1])
 	# print()
 	# print("######################################################")
 	# print()
-	# for stall in seek_stalls: 
+	# for stall in seek_stalls:
 	# 	print("Stall duration " + stall[0] + " Stall clock time " + stall[1])
 	CDF_data_points_map = {}
 	seek_stalls.sort(key=lambda tup: tup[0])
 	stall_duration_x_axis_list = list()
 	i = 0.0
-	while(i <= 9.0):
+	while(i <= 40.0):
 		stall_duration_x_axis_list += [str(i)]
 		i += 0.01
 	CDF_data_points_list = list()
@@ -69,14 +66,13 @@ def main():
 	plt.xlabel('duration before playback resumes after a seek (seconds)')
 	plt.ylabel('CDF value')
 	plt.ylim([-0.01, 1.05])
-	plt.xlim([0.0, 9.0])
+	plt.xlim([0.0, 40.0])
 	plt.savefig("./seek_monkey_CDF.png")
 	os.system('eog ./seek_monkey_CDF.png&')
 	plt.clf()
 
 
-	
+
 
 if __name__ == '__main__':
   main()
-
