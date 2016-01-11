@@ -39,20 +39,25 @@ def main():
 	video_id_re = "--video-id=(.+)"
 	browser_command_re = "--browser-command=(.+)"
 	url_re = "--url=(.+)"
+	env_string_re = "--env=(.+)"
 	for arg in sys.argv:
 		video_id_match_object = re.search(video_id_re, arg)
 		browser_command_match_object = re.search(browser_command_re, arg)
 		url_match_object = re.search(url_re, arg)
+		env_match_object = re.search(env_string_re, arg)
 		if video_id_match_object:
 			command_line_arguments["--video-id"] = video_id_match_object.group(1)
 		if browser_command_match_object:
 			command_line_arguments["--browser-command"] = browser_command_match_object.group(1)
 		if url_match_object:
 			command_line_arguments["--url"] = url_match_object.group(1)
+		if env_match_object:
+			command_line_arguments["--env"] = env_match_object.group(1)
 	#Configure default parameter values
 	video_id = ""
 	browser_command = "chromium-browser"
 	url = ""
+	env_string = ""
 	#Set command line parameters if given
 	if "--video-id" in command_line_arguments:
 		video_id = command_line_arguments["--video-id"]
@@ -60,9 +65,21 @@ def main():
 		browser_command = command_line_arguments["--browser-command"]
 	if "--url" in command_line_arguments:
 		url = command_line_arguments["--url"]		
+	if "--env" in command_line_arguments:
+		env_string = command_line_arguments["--env"]
 	if url == "":
 		print "ERROR: No url provided. Please pass a valid YouTube url using --url='<insert url here>'."
 		sys.exit(1)
+	if not env_string == "":
+		env_array = env_string.split(" ")
+		env_var_re = "([A-Z_]+)=(.+)"
+		for env_var in env_array:
+			env_var_match_object = re.search(env_var_re, env_var)
+			if not env_var_match_object:
+				print "ERROR: Incorrectly formatted environment variable " + env_var + " in command line arguments."
+				sys.exit(1)
+			else:
+				os.environ[env_var_match_object.group(1)] = env_var_match_object.group(2)
 	#Set the video id by parsing the embed YouTube url
 	if video_id == "":
 		match_object = re.search("/embed/([_a-zA-Z0-9\-]+)", url)
