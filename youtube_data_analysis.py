@@ -3,6 +3,8 @@
 #Usage: python youtube_data_analysis.py logfile_path index_directory SSIM_index_directory
 
 from __future__ import print_function
+import matplotlib
+matplotlib.use('pdf') # Must be before importing matplotlib.pyplot or pylab! Default uses x window manager and won't work cleanly in cloud installations.
 import pylab
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -54,7 +56,6 @@ def plot_resolution(logfile_path, output_filename):
 	plt.ylim([0, 1440])
 	plt.xlim([-100, time_last_adjusted + 100])
 	plt.savefig(output_filename)
-	os.system('eog ' + output_filename + '&')
 	plt.clf()
 
 
@@ -126,7 +127,6 @@ def plot_resolution_lines(graph_dict, time_first, time_last, output_filename):
 	plt.ylim([0, 1100])
 	plt.xlim([time_first - 100, time_last + 100])
 	plt.savefig(output_filename)
-	os.system('eog ' + output_filename + '&')
 	plt.clf()
 
 def merge_time_ranges(time_range_list):
@@ -355,7 +355,6 @@ def plot_SSIM_graph(SSIM_graph_dict, time_first, time_last, output_filename):
 	plt.ylim([0.60, 1.05])
 	plt.xlim([time_first - 100, time_last + 100])
 	plt.savefig(output_filename)
-	os.system('eog ' + output_filename + '&')
 	plt.clf()
 
 
@@ -408,7 +407,6 @@ def plot_CDF(SSIM_graph_dict, output_filename):
 	plt.ylim([-.1, 1.1])
 	plt.xlim([0.6, 1.0])
 	plt.savefig(output_filename)
-	os.system('eog ' + output_filename + '&')
 	plt.clf()
 	return CDF_data_points_list
 
@@ -468,7 +466,6 @@ def sc_plot_CDF_overlay(SSIM_index, output_filename, cdf_list):
 	plt.legend(handles=[blue_patch, red_patch, green_patch, orange_patch, purple_patch, cyan_patch, black_patch], loc='upper center', bbox_to_anchor=(0.25, 1.05),
           ncol=3, fancybox=True, shadow=True)
 	plt.savefig(output_filename)
-	os.system('eog ' + output_filename + '&')
 	plt.clf()
 
 def sc_read_SSIM_index(index_directory):
@@ -503,7 +500,7 @@ def configure_file_system(logfile_path):
 def main():
 	logfile_path = sys.argv[1]
 	output_filename = configure_file_system(logfile_path)
-	plot_resolution(logfile_path, output_filename + "resolution_requests.png")
+	plot_resolution(logfile_path, output_filename + "resolution_requests.pdf")
 	plotTuple = get_plot_info(logfile_path)
 	resolution_list = plotTuple[0]
 	byte_range_list = plotTuple[1]
@@ -539,16 +536,16 @@ def main():
 			final_graph_dict[resolution_requested] = final_graph_dict[resolution_requested] + [time_tuple]
 	final_graph_dict = get_merged_time_ranges(final_graph_dict)
 	print_overlap_percentage(final_graph_dict, time_last, output_filename + "stats.txt")
-	plot_resolution_lines(final_graph_dict, 0, time_last, output_filename + "resolution_lines_with_overlap.png")
+	plot_resolution_lines(final_graph_dict, 0, time_last, output_filename + "resolution_lines_with_overlap.pdf")
 	final_graph_dict = remove_overlap(final_graph_dict, time_last)
-	plot_resolution_lines(final_graph_dict, 0, time_last, output_filename + "resolution_lines_no_overlap.png")
+	plot_resolution_lines(final_graph_dict, 0, time_last, output_filename + "resolution_lines_no_overlap.pdf")
 	SSIM_dictionary = read_SSIM_index(SSIM_index_directory)
 	SSIM_graph_dict = get_SSIM_graph_dict(final_graph_dict, SSIM_dictionary, index)
 	print_mean_stddev_SSIM(SSIM_graph_dict,  output_filename + "stats.txt")
-	cdf_list = plot_CDF(SSIM_graph_dict,  output_filename + "CDF.png")
-	plot_SSIM_graph(SSIM_graph_dict, 0, time_last, output_filename + "SSIM.png")
+	cdf_list = plot_CDF(SSIM_graph_dict,  output_filename + "CDF.pdf")
+	plot_SSIM_graph(SSIM_graph_dict, 0, time_last, output_filename + "SSIM.pdf")
 	SSIM_index = sc_read_SSIM_index(SSIM_index_directory)
-	sc_plot_CDF_overlay(SSIM_index, output_filename + "CDF_overlay.png", cdf_list)
+	sc_plot_CDF_overlay(SSIM_index, output_filename + "CDF_overlay.pdf", cdf_list)
 
 
 
